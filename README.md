@@ -36,3 +36,10 @@ When an event handler fails, the event is often lost. A dead letter queue keeps 
 ## Edge you will hit
 
 `replay` never removes an entry when the handler fails; it increments `attempts` instead. That is the point of a dead letter queue, but it means a handler that throws forever will keep the entry around until you remove it or its `maxRetries` budget is exhausted and `replayAll` starts skipping it. `replayAll` only processes the entries that existed when the call started, so entries added by the handler during the pass wait for the next call.
+
+## Performance
+
+The window keeps a bounded buffer, so `push` is constant time and memory does not
+grow with the length of the stream. `peak` and `trough` are linear in the window
+size, which is the trade that keeps `push` cheap.
+
